@@ -88,24 +88,26 @@ def login():
                     cursor.callproc("SP_LOGIN_USUARIO", [nro_documento, contrasena, p_valido])
 
                     if p_valido.getvalue() == 1:
-                        # ✅ Si las credenciales son correctas, obtenemos el nombre
+                        # ✅ Credenciales correctas → obtener el nombre desde la tabla correcta
                         cursor.execute("""
                             SELECT NOMBRE 
-                            FROM USUARIOS 
+                            FROM USUARIO 
                             WHERE NRO_DOCUMENTO = :nro
-                        """, nro=nro_documento)
+                        """, {"nro": nro_documento})
                         result = cursor.fetchone()
                         nombre = result[0].lower() if result else ""
 
                         flash("✅ Inicio de sesión exitoso")
 
-                        # 🔹 Si el usuario se llama 'admin', redirige a index2
+                        # 🔹 Si es admin → index2, si no → index
                         if nombre == "admin":
                             return redirect(url_for('index2'))
                         else:
-                            return redirect(url_for('index'))
+                            return redirect(url_for('main_index'))
+
                     else:
                         flash("⚠️ Credenciales incorrectas")
+
         except Exception as e:
             flash(f"⚠️ Error de base de datos: {str(e)}")
 
@@ -113,9 +115,14 @@ def login():
 
 
 
+
 @app.route('/index')
 def main_index():
     return render_template('index.html')
+
+@app.route('/index2')
+def index2():
+    return render_template('index2.html')
 
 
 # ---------------------------
@@ -131,6 +138,12 @@ def registro_plantas():
     if 'usuario' not in session:
         return redirect(url_for('login'))
     return render_template('RegistroPlantas.html')
+
+@app.route('/registro_brigada')
+def registro_brigada():
+    return render_template('registro_brigadas.html')
+
+
 # ---------------------------
 # EJECUCIÓN LOCAL
 # ---------------------------

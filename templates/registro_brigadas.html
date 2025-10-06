@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrar Brigadas</title>
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; }
+    header { background: #004c3f; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+    header .logo img { height: 50px; }
+    header ul { list-style: none; display: flex; gap: 20px; }
+    header ul li a { color: white; text-decoration: none; }
+    .container { max-width: 900px; margin: 30px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+    #map { height: 400px; width: 100%; border-radius: 10px; margin-top: 10px; }
+    input, select { width: 100%; padding: 8px; margin: 8px 0; border-radius: 5px; border: 1px solid #ccc; }
+    label { font-weight: bold; }
+    .btn {
+      background: #007b55; color: white; border: none; padding: 10px 20px;
+      border-radius: 6px; cursor: pointer; font-size: 16px;
+    }
+    .btn:hover { background: #005c3d; }
+    .participantes-lista { display: flex; flex-wrap: wrap; gap: 10px; }
+    .participante-item {
+      border: 1px solid #ccc; border-radius: 6px; padding: 8px 12px;
+      cursor: pointer; background: #f8f9fa;
+    }
+    .participante-item.selected { background: #007b55; color: white; border-color: #007b55; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="{{ url_for('static', filename='img/logoIDEAM.png') }}" alt="IDEAM Logo">
+    </div>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('index2') }}">Inicio</a></li>
+        <li><a href="{{ url_for('register') }}">Registrar Usuario</a></li>
+        <li><a href="{{ url_for('login') }}">Cerrar Sesión</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h2>Registro de Brigadas</h2>
+    <p>Haz clic en el mapa para seleccionar la ubicación del conglomerado.</p>
+
+    <!-- Mapa -->
+    <div id="map"></div>
+
+    <!-- Formulario -->
+    <form action="/guardar_conglomerado" method="POST" id="formBrigada">
+
+      <label for="nombre">Nombre del Conglomerado:</label>
+      <input type="text" id="nombre" name="nombre" required>
+
+      <label for="fecha_inicio">Fecha de Inicio:</label>
+      <input type="date" id="fecha_inicio" name="fecha_inicio" required>
+
+      <label for="fecha_fin">Fecha de Fin:</label>
+      <input type="date" id="fecha_fin" name="fecha_fin" required>
+
+      <label for="departamento">Departamento:</label>
+      <select id="departamento" name="departamento" required>
+        <option value="">-- Selecciona un departamento --</option>
+        <option value="Antioquia">Antioquia</option>
+        <option value="Cundinamarca">Cundinamarca</option>
+        <option value="Valle del Cauca">Valle del Cauca</option>
+        <option value="Bolívar">Bolívar</option>
+        <option value="Santander">Santander</option>
+      </select>
+
+      <label for="municipio">Municipio:</label>
+      <input type="text" id="municipio" name="municipio">
+
+      <label for="coordenadas">Coordenadas:</label>
+      <input type="text" id="coordenadas" name="coordenadas" readonly required>
+
+      <div id="participantes-container">
+        <label>Selecciona 4 participantes:</label>
+        <div id="participantes-lista" class="participantes-lista"></div>
+      </div>
+
+      <br>
+      <button type="submit" class="btn">Guardar Brigada</button>
+    </form>
+  </div>
+
+  <script>
+    // --- Mapa con Leaflet ---
+    const map = L.map('map').setView([4.5709, -74.2973], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    let marker;
+
+    map.on('click', function(e) {
+      const lat = e.latlng.lat.toFixed(6);
+      const lng = e.latlng.lng.toFixed(6);
+
+      if (marker) map.removeLayer(marker);
+      marker = L.marker([lat, lng]).addTo(map);
+
+      document.getElementById('coordenadas').value = `${lat}, ${lng}`;
+    });
+
+    // --- Participantes por departamento (simulado) ---
+    const participantesData = {
+      "Antioquia": ["Carlos López", "Ana Gómez", "Juan Pérez", "Laura Restrepo", "Santiago Arango"],
+      "Cundinamarca": ["Valeria Díaz", "Camilo Suárez", "Nathalia Ruiz", "Andrés Rojas"],
+      "Valle del Cauca": ["Paola Torres", "David Morales", "Lucía Herrera", "Julio Castro"],
+      "Bolívar": ["Sofía García", "Ricardo Mendoza", "Daniela Pardo", "Esteban Torres"],
+      "Santander": ["Mateo Gutiérrez", "Sara Niño", "Felipe Cárdenas", "Adriana Martínez"]
+    };
+
+    const listaDiv = document.getElementById('participantes-lista');
+    const deptoSelect = document.getElementById('departamento');
+    let seleccionados = [];
+
+    deptoSelect.addEventListener('change', function() {
+      const depto = this.value;
+      listaDiv.innerHTML = '';
+      seleccionados = [];
+
+      if (participantesData[depto]) {
+        participantesData[depto].forEach(nombre => {
+          const div = document.createElement('div');
+          div.classList.add('participante-item');
+          div.textContent = nombre;
+
+          div.addEventListener('click', function() {
+            if (div.classList.contains('selected')) {
+              div.classList.remove('selected');
+              seleccionados = seleccionados.filter(n => n !== nombre);
+            } else {
+              if (seleccionados.length >= 4) {
+                alert("Solo puedes seleccionar 4 participantes.");
+                return;
+              }
+              div.classList.add('selected');
+              seleccionados.push(nombre);
+            }
+          });
+
+          listaDiv.appendChild(div);
+        });
+      }
+    });
+
+    // Antes de enviar el formulario, agregamos los participantes seleccionados
+    document.getElementById('formBrigada').addEventListener('submit', function(e) {
+      if (seleccionados.length !== 4) {
+        e.preventDefault();
+        alert("Debes seleccionar exactamente 4 participantes.");
+        return;
+      }
+
+      const hidden = document.createElement('input');
+      hidden.type = 'hidden';
+      hidden.name = 'participantes';
+      hidden.value = JSON.stringify(seleccionados);
+      this.appendChild(hidden);
+    });
+  </script>
+
+</body>
+</html>

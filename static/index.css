@@ -165,7 +165,7 @@ body {
 
 /* TARJETA */
 .card {
-  width: 294px;
+  width: 300px;
   height: 447px;
   position: relative;
   overflow: hidden;
@@ -173,7 +173,7 @@ body {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
   cursor: pointer;
   background: #000;
-  transition: transform 0.3s ease;
+  transition: transform 0.6s ease;
 }
 
 .card:hover {
@@ -227,6 +227,17 @@ body {
 .card.arboles::after {
   background: #0C7C59;
 }
+
+/* Color para tarjeta de Brigadas */
+.card.brigada::after {
+  background: #8B3A3A; /* rojo vino */
+}
+
+/* Color para tarjeta de Registrar Usuario */
+.card.usuario::after {
+  background: #00796b; /* verde esmeralda */
+}
+
 
 /* verde bosque */
 .card.plantas::after {

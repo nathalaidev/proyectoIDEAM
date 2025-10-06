@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IDEAM</title>
+  <title>IDEAM - Administrador</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -59,24 +59,42 @@
     <a class="next">&#10095;</a>
   </section>
 
+  <!-- BOTONES DE ACCIÓN -->
   <section class="action-buttons" id="registros">
-  <a href="{{ url_for('registro_arbol') }}" class="card arboles">
-    <div class="card-img"
-      style="background-image: url('{{ url_for('static', filename='img/formularioarbol.jpg') }}');">
-    </div>
-    <div class="card-text">Formulario Árboles</div>
-  </a>
+    <a href="{{ url_for('registro_arbol') }}" class="card arboles">
+      <div class="card-img"
+        style="background-image: url('{{ url_for('static', filename='img/formularioarbol.jpg') }}');">
+      </div>
+      <div class="card-text">Formulario Árboles</div>
+    </a>
 
-  <a href="{{ url_for('registro_plantas') }}" class="card plantas">
-    <div class="card-img"
-      style="background-image: url('{{ url_for('static', filename='img/formularioplantas.jpg') }}');">
-    </div>
-    <div class="card-text">Formulario Plantas</div>
-  </a>
-</section>
+    <a href="{{ url_for('registro_plantas') }}" class="card plantas">
+      <div class="card-img"
+        style="background-image: url('{{ url_for('static', filename='img/formularioplantas.jpg') }}');">
+      </div>
+      <div class="card-text">Formulario Plantas</div>
+    </a>
 
+    <!-- NUEVO: REGISTRO BRIGADA -->
+    <a href="{{ url_for('registro_brigada') }}" class="card brigada">
+      <div class="card-img"
+        style="background-image: url('{{ url_for('static', filename='img/formulariobrigada.jpg') }}');">
+      </div>
+      <div class="card-text">Registrar Brigada</div>
+    </a>
 
+    
 
+    
+
+    <!-- NUEVO: REGISTRO USUARIO -->
+    <a href="{{ url_for('register') }}" class="card usuario">
+      <div class="card-img"
+        style="background-image: url('{{ url_for('static', filename='img/registrousuario.png') }}');">
+      </div>
+      <div class="card-text">Registrar Usuario</div>
+    </a>
+  </section>
 
   <!-- INFO -->
   <section id="acerca" class="container">
